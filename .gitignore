@@ -1,0 +1,3 @@
+*.iml
+dependency-pom-reduced.xml
+.idea/*
