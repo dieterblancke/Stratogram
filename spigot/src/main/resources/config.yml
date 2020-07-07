@@ -1,0 +1,10 @@
+# Set to true if debug messages should be enabled (warning: this can spam the console)
+debug: false
+
+# How much space should be left below each line of a hologram.
+spacing:
+  # The amount of space (Y axis) that should be the margin for text lines.
+  text: 0.24
+  # The amount of space (Y axis) that should be the margin for item lines.
+  item: 0.8
+
