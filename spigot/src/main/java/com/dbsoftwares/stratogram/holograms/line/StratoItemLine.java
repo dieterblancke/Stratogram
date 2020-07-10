@@ -1,10 +1,9 @@
 package com.dbsoftwares.stratogram.holograms.line;
 
+import com.dbsoftwares.configuration.api.ISection;
 import com.dbsoftwares.stratogram.Stratogram;
 import com.dbsoftwares.stratogram.api.line.ItemLine;
-import com.dbsoftwares.stratogram.nms.api.hologram.HologramEntity;
 import com.dbsoftwares.stratogram.nms.api.hologram.HologramItem;
-import com.dbsoftwares.stratogram.pluginhooks.PluginHooks;
 import org.bukkit.Location;
 import org.bukkit.inventory.ItemStack;
 
@@ -15,9 +14,9 @@ public class StratoItemLine extends StratoLine implements ItemLine
 
     private ItemStack item;
 
-    public StratoItemLine( final Location location, final ItemStack item )
+    public StratoItemLine( final Location previousLine, final ItemStack item )
     {
-        super(location);
+        super( previousLine.clone().add( 0, Stratogram.getInstance().getConfiguration().getDouble( "spacing.item" ), 0 ) );
         this.setItem( item );
     }
 
@@ -71,6 +70,17 @@ public class StratoItemLine extends StratoLine implements ItemLine
             return true;
         }
         return false;
+    }
+
+    @Override
+    public ISection asSection()
+    {
+        final ISection section = super.asSection();
+
+        section.set( "type", "item" );
+        section.set( "data", this.item );
+
+        return section;
     }
 
     @Override

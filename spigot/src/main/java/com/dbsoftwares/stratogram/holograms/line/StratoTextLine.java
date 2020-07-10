@@ -1,5 +1,6 @@
 package com.dbsoftwares.stratogram.holograms.line;
 
+import com.dbsoftwares.configuration.api.ISection;
 import com.dbsoftwares.stratogram.Stratogram;
 import com.dbsoftwares.stratogram.api.line.TextLine;
 import com.dbsoftwares.stratogram.nms.api.hologram.HologramArmorStand;
@@ -14,9 +15,9 @@ public class StratoTextLine extends StratoLine implements TextLine
     private boolean placeHoldersFound = false;
     private String text;
 
-    public StratoTextLine( final Location location, final String text )
+    public StratoTextLine( final Location previousLine, final String text )
     {
-        super( location );
+        super( previousLine.clone().add( 0, Stratogram.getInstance().getConfiguration().getDouble( "spacing.text" ), 0 ) );
         this.setText( text );
     }
 
@@ -93,6 +94,16 @@ public class StratoTextLine extends StratoLine implements TextLine
         return PluginHooks.PLACEHOLDERAPI.isPresent() && PluginHooks.PLACEHOLDERAPI.hasPlaceHolders( text );
     }
 
+    @Override
+    public ISection asSection()
+    {
+        final ISection section = super.asSection();
+
+        section.set( "type", "text" );
+        section.set( "data", this.text );
+
+        return section;
+    }
 
     @Override
     protected void attemptDeletion()

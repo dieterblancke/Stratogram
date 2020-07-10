@@ -6,11 +6,20 @@ import com.dbsoftwares.stratogram.api.line.HologramLine;
 import org.bukkit.Location;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class StratoHologram implements Hologram
 {
 
     private WeakReference<Location> location;
+    private List<HologramLine> lines = Collections.synchronizedList( new ArrayList<>() );
+
+    public StratoHologram( final Location location )
+    {
+        this.location = new WeakReference<>( location );
+    }
 
     @Override
     public HologramLine addLine( final HologramLine line )
@@ -45,7 +54,7 @@ public class StratoHologram implements Hologram
     @Override
     public int size()
     {
-        return 0;
+        return lines.size();
     }
 
     @Override
@@ -57,7 +66,7 @@ public class StratoHologram implements Hologram
     @Override
     public Location getLocation()
     {
-        return null;
+        return this.location == null ? null : this.location.get();
     }
 
     @Override

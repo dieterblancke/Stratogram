@@ -1,6 +1,9 @@
 package com.dbsoftwares.stratogram.holograms.line;
 
+import com.dbsoftwares.configuration.api.ISection;
+import com.dbsoftwares.configuration.json.JsonSection;
 import com.dbsoftwares.stratogram.api.line.HologramLine;
+import com.dbsoftwares.stratogram.api.line.ItemLine;
 import com.dbsoftwares.stratogram.nms.api.hologram.HologramEntity;
 import org.bukkit.Location;
 
@@ -35,6 +38,12 @@ public abstract class StratoLine implements HologramLine
     public boolean shouldUpdate()
     {
         return updateDelay == -1 || System.currentTimeMillis() > lastUpdate + updateDelay;
+    }
+
+    @Override
+    public ISection asSection()
+    {
+        return new JsonSection();
     }
 
     protected void attemptDeletion()

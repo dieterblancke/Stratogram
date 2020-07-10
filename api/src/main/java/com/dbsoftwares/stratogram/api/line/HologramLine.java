@@ -1,5 +1,7 @@
 package com.dbsoftwares.stratogram.api.line;
 
+import com.dbsoftwares.configuration.api.ISection;
+
 public interface HologramLine
 {
 
@@ -19,5 +21,12 @@ public interface HologramLine
      * @return true if should be updated, false if not.
      */
     boolean shouldUpdate();
+
+    /**
+     * Returns a section containing the necessary data to store the line.
+     *
+     * @return a section with the line data
+     */
+    ISection asSection();
 
 }

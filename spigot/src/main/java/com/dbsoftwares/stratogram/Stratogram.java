@@ -2,6 +2,7 @@ package com.dbsoftwares.stratogram;
 
 import com.dbsoftwares.commands.Command;
 import com.dbsoftwares.commands.CommandBuilder;
+import com.dbsoftwares.configuration.api.FileStorageType;
 import com.dbsoftwares.configuration.api.IConfiguration;
 import com.dbsoftwares.stratogram.commands.StratogramCommandCall;
 import com.dbsoftwares.stratogram.nms.api.NMSHologramManager;
@@ -25,6 +26,7 @@ public class Stratogram extends JavaPlugin
     @Getter
     private static Stratogram instance;
     private IConfiguration configuration;
+    private IConfiguration holograms;
     private NMSHologramManager hologramManager;
 
     @Override
@@ -33,12 +35,7 @@ public class Stratogram extends JavaPlugin
         instance = this;
 
         this.getLogger().info( "Loading configuration data ..." );
-        final File configFile = new File( this.getDataFolder(), "config.yml" );
-        if ( !configFile.exists() )
-        {
-            IConfiguration.createDefaultFile( getResource( "config.yml" ), configFile );
-        }
-        this.configuration = IConfiguration.loadYamlConfiguration( configFile );
+        this.loadConfigurationFiles();
 
         this.getLogger().info( "Searching NMS handler for " + ReflectionUtils.getServerVersion() + " ..." );
         this.registerHologramManager();
@@ -48,6 +45,38 @@ public class Stratogram extends JavaPlugin
 
         this.getLogger().info( "Registering listeners ..." );
         this.registerListeners();
+    }
+
+    private void loadConfigurationFiles()
+    {
+        this.configuration = loadConfigurationFile( FileStorageType.YAML, "config.yml", true );
+        this.holograms = loadConfigurationFile( FileStorageType.JSON, "holograms.json", false );
+    }
+
+    private IConfiguration loadConfigurationFile( final FileStorageType type, final String fileName, final boolean loadFromResources )
+    {
+        final File file = new File( this.getDataFolder(), fileName );
+
+        if ( !file.exists() )
+        {
+            if ( loadFromResources )
+            {
+                IConfiguration.createDefaultFile( getResource( fileName ), file );
+            }
+            else
+            {
+                try
+                {
+                    file.createNewFile();
+                }
+                catch ( IOException e )
+                {
+                    e.printStackTrace();
+                    return null;
+                }
+            }
+        }
+        return IConfiguration.loadConfiguration( type, file );
     }
 
     private void registerHologramManager()
