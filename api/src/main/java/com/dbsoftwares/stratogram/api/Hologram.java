@@ -2,26 +2,26 @@ package com.dbsoftwares.stratogram.api;
 
 import com.dbsoftwares.stratogram.api.line.HologramLine;
 import org.bukkit.Location;
+import org.bukkit.inventory.ItemStack;
 
 public interface Hologram
 {
 
     /**
-     * Adds a line to the end of this hologram.
+     * Adds a text line to the end of this hologram.
      *
-     * @param line the line that should be added on the end of the hologram.
-     * @return the line that got added
+     * @param text the text that should be added on the end of the hologram.
+     * @return the textline that got added
      */
-    HologramLine addLine( HologramLine line );
+    HologramLine addTextLine( final String text );
 
     /**
-     * Adds a line to the hologram on a given index.
+     * Adds a item line to the end of this hologram.
      *
-     * @param index the index on which the line should be added.
-     * @param line the line that should be added to the hologram.
-     * @return the line that got added
+     * @param item the item that should be added on the end of the hologram.
+     * @return the itemline that got added
      */
-    HologramLine addLine( int index, HologramLine line );
+    HologramLine addItemLine( final ItemStack item );
 
     /**
      * Gets the line at the given index in the hologram.

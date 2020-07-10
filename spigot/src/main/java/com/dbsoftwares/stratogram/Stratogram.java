@@ -4,7 +4,9 @@ import com.dbsoftwares.commands.Command;
 import com.dbsoftwares.commands.CommandBuilder;
 import com.dbsoftwares.configuration.api.FileStorageType;
 import com.dbsoftwares.configuration.api.IConfiguration;
+import com.dbsoftwares.configuration.api.ISection;
 import com.dbsoftwares.stratogram.commands.StratogramCommandCall;
+import com.dbsoftwares.stratogram.holograms.StoredHologram;
 import com.dbsoftwares.stratogram.nms.api.NMSHologramManager;
 import com.dbsoftwares.stratogram.utils.ReflectionUtils;
 import com.google.common.reflect.ClassPath;
@@ -16,6 +18,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 
@@ -25,6 +29,7 @@ public class Stratogram extends JavaPlugin
 
     @Getter
     private static Stratogram instance;
+    private final List<StoredHologram> storedHolograms = new ArrayList<>();
     private IConfiguration configuration;
     private IConfiguration holograms;
     private NMSHologramManager hologramManager;
@@ -51,6 +56,30 @@ public class Stratogram extends JavaPlugin
     {
         this.configuration = loadConfigurationFile( FileStorageType.YAML, "config.yml", true );
         this.holograms = loadConfigurationFile( FileStorageType.JSON, "holograms.json", false );
+
+        final List<ISection> hologramSections = this.holograms.getSectionList( "holograms" );
+        for ( ISection section : hologramSections )
+        {
+            this.storedHolograms.add( new StoredHologram( section ) );
+        }
+    }
+
+    public void saveHolograms()
+    {
+        final List<ISection> sections = new ArrayList<>();
+        for ( StoredHologram hologram : this.storedHolograms )
+        {
+            sections.add( hologram.saveHologram() );
+        }
+        holograms.set( "holograms", sections );
+        try
+        {
+            holograms.save();
+        }
+        catch ( IOException e )
+        {
+            e.printStackTrace();
+        }
     }
 
     private IConfiguration loadConfigurationFile( final FileStorageType type, final String fileName, final boolean loadFromResources )
@@ -120,7 +149,7 @@ public class Stratogram extends JavaPlugin
                 .register( this );
     }
 
-    @SuppressWarnings("all")
+    @SuppressWarnings( "all" )
     private void registerListeners()
     {
         try

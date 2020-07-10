@@ -23,7 +23,7 @@ public class StratogramCommandCall extends ParentCommand implements CommandCall
                 .build()
         );
         this.registerSubCommand( CommandBuilder.builder()
-                .name( "create" )
+                .name( "bcreate" )
                 .permission( "stratogram.admin.create" )
                 .executable( new StratogramCreateSubCommandCall() )
                 .build()

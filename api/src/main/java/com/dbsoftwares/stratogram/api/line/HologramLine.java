@@ -1,6 +1,7 @@
 package com.dbsoftwares.stratogram.api.line;
 
 import com.dbsoftwares.configuration.api.ISection;
+import org.bukkit.Location;
 
 public interface HologramLine
 {
@@ -25,8 +26,21 @@ public interface HologramLine
     /**
      * Returns a section containing the necessary data to store the line.
      *
-     * @return a section with the line data
+     * @return a section with the line data.
      */
     ISection asSection();
 
+    /**
+     * Returns the location of the hologram line.
+     *
+     * @return the location of the hologram line.
+     */
+    Location getLocation();
+
+    /**
+     * Teleports the hologram to a specific location.
+     *
+     * @param location the location to teleport to.
+     */
+    void teleport( Location location );
 }

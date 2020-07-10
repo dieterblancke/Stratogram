@@ -29,6 +29,18 @@ public abstract class StratoLine implements HologramLine
     }
 
     @Override
+    public Location getLocation()
+    {
+        return location == null ? null : location.get();
+    }
+
+    @Override
+    public void teleport( final Location location )
+    {
+        this.location = new WeakReference<>( location );
+    }
+
+    @Override
     public void update()
     {
         lastUpdate = System.currentTimeMillis();
