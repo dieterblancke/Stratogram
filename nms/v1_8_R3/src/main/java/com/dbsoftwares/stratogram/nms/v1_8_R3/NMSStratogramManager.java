@@ -4,6 +4,7 @@ import com.dbsoftwares.stratogram.api.line.ItemLine;
 import com.dbsoftwares.stratogram.api.line.TextLine;
 import com.dbsoftwares.stratogram.nms.api.NMSHologramManager;
 import com.dbsoftwares.stratogram.nms.api.hologram.HologramArmorStand;
+import com.dbsoftwares.stratogram.nms.api.hologram.HologramEntity;
 import com.dbsoftwares.stratogram.nms.api.hologram.HologramItem;
 import com.dbsoftwares.stratogram.nms.v1_8_R3.hologram.StratogramArmorStand;
 import com.dbsoftwares.stratogram.nms.v1_8_R3.hologram.StratogramItem;
@@ -14,6 +15,7 @@ import net.minecraft.server.v1_8_R3.WorldServer;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
+import org.bukkit.craftbukkit.v1_8_R3.entity.CraftEntity;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 
@@ -62,7 +64,7 @@ public class NMSStratogramManager implements NMSHologramManager
     @Override
     public boolean isHologramEntity( final Entity entity )
     {
-        return false;
+        return ((CraftEntity) entity).getHandle() instanceof HologramEntity;
     }
 
     @Override
