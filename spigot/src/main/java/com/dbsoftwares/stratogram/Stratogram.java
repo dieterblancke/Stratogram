@@ -4,6 +4,8 @@ import com.dbsoftwares.commands.Command;
 import com.dbsoftwares.commands.CommandBuilder;
 import com.dbsoftwares.configuration.api.IConfiguration;
 import com.dbsoftwares.stratogram.commands.StratogramCommandCall;
+import com.dbsoftwares.stratogram.nms.api.NMSHologramManager;
+import com.dbsoftwares.stratogram.utils.ReflectionUtils;
 import com.google.common.reflect.ClassPath;
 import lombok.Getter;
 import org.bukkit.Bukkit;
@@ -14,6 +16,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Set;
+import java.util.logging.Level;
 
 @Getter
 public class Stratogram extends JavaPlugin
@@ -22,6 +25,7 @@ public class Stratogram extends JavaPlugin
     @Getter
     private static Stratogram instance;
     private IConfiguration configuration;
+    private NMSHologramManager hologramManager;
 
     @Override
     public void onEnable()
@@ -36,11 +40,33 @@ public class Stratogram extends JavaPlugin
         }
         this.configuration = IConfiguration.loadYamlConfiguration( configFile );
 
+        this.getLogger().info( "Searching NMS handler for " + ReflectionUtils.getServerVersion() + " ..." );
+        this.registerHologramManager();
+
         this.getLogger().info( "Registering commands ..." );
         this.registerCommands();
 
         this.getLogger().info( "Registering listeners ..." );
         this.registerListeners();
+    }
+
+    private void registerHologramManager()
+    {
+        try
+        {
+            final Class<?> clazz = Class.forName( "com.dbsoftwares.stratogram.nms." + ReflectionUtils.getServerVersion() + ".NMSStratogramManager" );
+
+            this.hologramManager = (NMSHologramManager) clazz.getConstructor().newInstance();
+            this.hologramManager.registerCustomEntities();
+        }
+        catch ( ClassNotFoundException e )
+        {
+            this.getLogger().log( Level.SEVERE, "Could not find a NMS handler for " + ReflectionUtils.getServerVersion() + "! Stratogram will shut down now.", e );
+        }
+        catch ( Exception e )
+        {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -57,7 +83,7 @@ public class Stratogram extends JavaPlugin
         // Registering main command
         CommandBuilder.builder()
                 .name( "stratograms" )
-                .aliases( "sg", "com/dbsoftwares/stratogram", "strato", "holo" )
+                .aliases( "sg", "stratogram", "strato", "holo" )
                 .enabled( true )
                 .permission( "stratogram.admin" )
                 .executable( new StratogramCommandCall() )
@@ -65,7 +91,7 @@ public class Stratogram extends JavaPlugin
                 .register( this );
     }
 
-    @SuppressWarnings( "all" )
+    @SuppressWarnings("all")
     private void registerListeners()
     {
         try
