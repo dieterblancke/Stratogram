@@ -3,10 +3,7 @@ package com.dbsoftwares.stratogram.commands;
 import com.dbsoftwares.commands.CommandBuilder;
 import com.dbsoftwares.commands.CommandCall;
 import com.dbsoftwares.commands.ParentCommand;
-import com.dbsoftwares.stratogram.commands.subcommands.StratogramCreateSubCommandCall;
-import com.dbsoftwares.stratogram.commands.subcommands.StratogramDeleteSubCommand;
-import com.dbsoftwares.stratogram.commands.subcommands.StratogramEditSubCommandCall;
-import com.dbsoftwares.stratogram.commands.subcommands.StratogramReloadSubCommandCall;
+import com.dbsoftwares.stratogram.commands.subcommands.*;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.command.CommandSender;
 
@@ -52,6 +49,13 @@ public class StratogramCommandCall extends ParentCommand implements CommandCall
                 .aliases( "rl", "rel" )
                 .permission( "stratogram.admin.reload" )
                 .executable( new StratogramReloadSubCommandCall() )
+                .build()
+        );
+        this.registerSubCommand( CommandBuilder.builder()
+                .enabled( true )
+                .name( "test" )
+                .permission( "stratogram.admin.test" )
+                .executable( new StratogramTestSubCommandCall() )
                 .build()
         );
     }

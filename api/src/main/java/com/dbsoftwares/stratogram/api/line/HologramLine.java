@@ -1,6 +1,7 @@
 package com.dbsoftwares.stratogram.api.line;
 
 import com.dbsoftwares.configuration.api.ISection;
+import com.dbsoftwares.stratogram.api.nms.hologram.HologramEntity;
 import org.bukkit.Location;
 
 public interface HologramLine
@@ -43,5 +44,7 @@ public interface HologramLine
      * @param location the location to teleport to.
      */
     void teleport( Location location );
+
+    HologramEntity getEntity();
 
 }

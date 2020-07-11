@@ -4,26 +4,30 @@ import com.dbsoftwares.configuration.api.ISection;
 import com.dbsoftwares.configuration.json.JsonSection;
 import com.dbsoftwares.stratogram.Stratogram;
 import com.dbsoftwares.stratogram.api.line.TextLine;
-import com.dbsoftwares.stratogram.nms.api.hologram.HologramArmorStand;
+import com.dbsoftwares.stratogram.api.nms.hologram.HologramArmorStand;
 import com.dbsoftwares.stratogram.pluginhooks.PluginHooks;
 import com.dbsoftwares.stratogram.utils.Locations;
-import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Location;
 
-@Data
-@EqualsAndHashCode(callSuper = true)
+import java.util.function.UnaryOperator;
+
+@ToString
+@EqualsAndHashCode( callSuper = true )
 public class StratoTextLine extends StratoLine implements TextLine
 {
 
+    private final UnaryOperator<String> placeholderFormatFunction;
     private boolean placeHoldersFound = false;
     private String text;
 
-    public StratoTextLine( final Location previousLine, final String text )
+    public StratoTextLine( final Location previousLine, final String text, UnaryOperator<String> placeholderFormatFunction )
     {
         super( previousLine.clone().subtract( 0, Stratogram.getInstance().getConfiguration().getDouble( "spacing.text.top" ), 0 ) );
         this.setText( text );
+        this.placeholderFormatFunction = placeholderFormatFunction;
         Stratogram.getInstance().debug( "Spawning a text line at " + Locations.toString( super.getLocation() ) + "." );
     }
 
@@ -34,9 +38,14 @@ public class StratoTextLine extends StratoLine implements TextLine
         {
             return null;
         }
-        final String text = ChatColor.translateAlternateColorCodes( '&', this.text );
+        String line = ChatColor.translateAlternateColorCodes( '&', this.text );
 
-        return placeHoldersFound ? PluginHooks.PLACEHOLDERAPI.setPlaceHolders( text ) : text;
+        if ( this.placeholderFormatFunction != null )
+        {
+            line = this.placeholderFormatFunction.apply( line );
+        }
+
+        return placeHoldersFound ? PluginHooks.PLACEHOLDERAPI.setPlaceHolders( line ) : line;
     }
 
     @Override

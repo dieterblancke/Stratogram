@@ -7,18 +7,21 @@ import com.dbsoftwares.stratogram.utils.Locations;
 import com.dbsoftwares.stratogram.utils.XMaterial;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.ToString;
 import org.bukkit.Location;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-@Data
+@Getter
+@ToString
 @EqualsAndHashCode(callSuper = true)
 public class StoredHologram extends StratoHologram
 {
 
-    private String name;
+    private final String name;
     private List<String> pages;
 
     public StoredHologram( final String name, final List<String> pages, final Location location )

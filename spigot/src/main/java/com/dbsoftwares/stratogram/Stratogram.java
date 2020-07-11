@@ -5,15 +5,18 @@ import com.dbsoftwares.commands.CommandBuilder;
 import com.dbsoftwares.configuration.api.FileStorageType;
 import com.dbsoftwares.configuration.api.IConfiguration;
 import com.dbsoftwares.configuration.api.ISection;
+import com.dbsoftwares.stratogram.api.Hologram;
 import com.dbsoftwares.stratogram.commands.StratogramCommandCall;
 import com.dbsoftwares.stratogram.holograms.StoredHologram;
-import com.dbsoftwares.stratogram.nms.api.NMSHologramManager;
+import com.dbsoftwares.stratogram.api.nms.NMSHologramManager;
 import com.dbsoftwares.stratogram.utils.ReflectionUtils;
 import com.google.common.reflect.ClassPath;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,9 +34,11 @@ public class Stratogram extends JavaPlugin
     @Getter
     private static Stratogram instance;
     private final List<StoredHologram> storedHolograms = Collections.synchronizedList( new ArrayList<>() );
+    private final List<Hologram> allHolograms = Collections.synchronizedList( new ArrayList<>() );
     private IConfiguration configuration;
     private IConfiguration holograms;
     private NMSHologramManager hologramManager;
+    private BukkitTask storedHologramUpdateTask;
 
     @Override
     public void onEnable()
@@ -51,6 +56,9 @@ public class Stratogram extends JavaPlugin
 
         this.getLogger().info( "Registering listeners ..." );
         this.registerListeners();
+
+        this.getLogger().info( "Registering tasks ..." );
+        this.registerTasks();
     }
 
     @Override
@@ -70,6 +78,7 @@ public class Stratogram extends JavaPlugin
         }
         this.storedHolograms.clear();
         this.loadConfigurationFiles();
+        this.registerTasks();
     }
 
     private void loadConfigurationFiles()
@@ -176,7 +185,7 @@ public class Stratogram extends JavaPlugin
                 .register( this );
     }
 
-    @SuppressWarnings("all")
+    @SuppressWarnings( "all" )
     private void registerListeners()
     {
         try
@@ -202,6 +211,27 @@ public class Stratogram extends JavaPlugin
         {
             e.printStackTrace();
         }
+    }
+
+    private void registerTasks()
+    {
+        if ( this.storedHologramUpdateTask != null )
+        {
+            this.storedHologramUpdateTask.cancel();
+        }
+        final int delay = this.configuration.getInteger( "update-task" ) * 20;
+
+        this.storedHologramUpdateTask = new BukkitRunnable()
+        {
+            @Override
+            public void run()
+            {
+                for ( StoredHologram hologram : storedHolograms )
+                {
+                    hologram.update();
+                }
+            }
+        }.runTaskTimer( this, delay, delay );
     }
 
     public void debug( final String text )

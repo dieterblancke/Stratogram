@@ -1,11 +1,12 @@
 package com.dbsoftwares.stratogram.nms.v1_16_R1;
 
+import com.dbsoftwares.stratogram.api.Hologram;
 import com.dbsoftwares.stratogram.api.line.ItemLine;
 import com.dbsoftwares.stratogram.api.line.TextLine;
-import com.dbsoftwares.stratogram.nms.api.NMSHologramManager;
-import com.dbsoftwares.stratogram.nms.api.hologram.HologramArmorStand;
-import com.dbsoftwares.stratogram.nms.api.hologram.HologramEntity;
-import com.dbsoftwares.stratogram.nms.api.hologram.HologramItem;
+import com.dbsoftwares.stratogram.api.nms.NMSHologramManager;
+import com.dbsoftwares.stratogram.api.nms.hologram.HologramArmorStand;
+import com.dbsoftwares.stratogram.api.nms.hologram.HologramEntity;
+import com.dbsoftwares.stratogram.api.nms.hologram.HologramItem;
 import com.dbsoftwares.stratogram.nms.v1_16_R1.hologram.StratogramArmorStand;
 import com.dbsoftwares.stratogram.nms.v1_16_R1.hologram.StratogramItem;
 import net.minecraft.server.v1_16_R1.MathHelper;
@@ -15,6 +16,7 @@ import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_16_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_16_R1.entity.CraftEntity;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
 
 import java.lang.reflect.Method;
 
@@ -40,6 +42,18 @@ public class NMSStratogramManager implements NMSHologramManager
     public boolean isHologramEntity( final Entity entity )
     {
         return ((CraftEntity) entity).getHandle() instanceof HologramEntity;
+    }
+
+    @Override
+    public void sendSpawnPacket( Hologram hologram, Player... players )
+    {
+
+    }
+
+    @Override
+    public void sendDestroyPacket( Hologram hologram, Player... players )
+    {
+
     }
 
     @Override

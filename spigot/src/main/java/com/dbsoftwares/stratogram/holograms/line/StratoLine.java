@@ -1,7 +1,7 @@
 package com.dbsoftwares.stratogram.holograms.line;
 
 import com.dbsoftwares.stratogram.api.line.HologramLine;
-import com.dbsoftwares.stratogram.nms.api.hologram.HologramEntity;
+import com.dbsoftwares.stratogram.api.nms.hologram.HologramEntity;
 import org.bukkit.Location;
 
 public abstract class StratoLine implements HologramLine
@@ -62,5 +62,11 @@ public abstract class StratoLine implements HologramLine
         // Setting all variables to null
         this.nmsEntity = null;
         this.location = null;
+    }
+
+    @Override
+    public HologramEntity getEntity()
+    {
+        return nmsEntity;
     }
 }

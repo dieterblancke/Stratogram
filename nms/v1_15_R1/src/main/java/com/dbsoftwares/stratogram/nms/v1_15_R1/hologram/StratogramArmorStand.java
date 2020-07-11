@@ -1,9 +1,9 @@
 package com.dbsoftwares.stratogram.nms.v1_15_R1.hologram;
 
-import com.dbsoftwares.stratogram.api.Utils;
+import com.dbsoftwares.stratogram.api.util.Utils;
 import com.dbsoftwares.stratogram.api.line.HologramLine;
 import com.dbsoftwares.stratogram.api.line.TextLine;
-import com.dbsoftwares.stratogram.nms.api.hologram.HologramArmorStand;
+import com.dbsoftwares.stratogram.api.nms.hologram.HologramArmorStand;
 import com.dbsoftwares.stratogram.nms.v1_15_R1.hologram.craft.CraftStratoArmorStand;
 import lombok.EqualsAndHashCode;
 import net.minecraft.server.v1_15_R1.*;

@@ -4,16 +4,17 @@ import com.dbsoftwares.configuration.api.ISection;
 import com.dbsoftwares.configuration.json.JsonSection;
 import com.dbsoftwares.stratogram.Stratogram;
 import com.dbsoftwares.stratogram.api.line.ItemLine;
-import com.dbsoftwares.stratogram.nms.api.hologram.HologramArmorStand;
-import com.dbsoftwares.stratogram.nms.api.hologram.HologramItem;
+import com.dbsoftwares.stratogram.api.nms.hologram.HologramArmorStand;
+import com.dbsoftwares.stratogram.api.nms.hologram.HologramItem;
 import com.dbsoftwares.stratogram.utils.Locations;
-import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.bukkit.Location;
+import org.bukkit.entity.Entity;
 import org.bukkit.inventory.ItemStack;
 
-@Data
-@EqualsAndHashCode(callSuper = true)
+@ToString
+@EqualsAndHashCode( callSuper = true )
 public class StratoItemLine extends StratoLine implements ItemLine
 {
 
@@ -53,9 +54,9 @@ public class StratoItemLine extends StratoLine implements ItemLine
 
         if ( !this.spawnIfDead() )
         {
-            final HologramItem item = (HologramItem) this.nmsEntity;
+            final HologramItem hologramItem = (HologramItem) this.nmsEntity;
 
-            item.setHologramItemStack( this.getItem() );
+            hologramItem.setHologramItemStack( this.getItem() );
         }
     }
 
@@ -66,7 +67,7 @@ public class StratoItemLine extends StratoLine implements ItemLine
             this.nmsEntity = Stratogram.getInstance().getHologramManager().spawnHologramItem( this.location, this );
             this.nmsVehicle = Stratogram.getInstance().getHologramManager().spawnHologramArmorStand( location, null, true );
 
-            ((HologramItem) this.nmsEntity).setPassengerOf( this.nmsVehicle );
+            ( (HologramItem) this.nmsEntity ).setPassengerOf( this.nmsVehicle );
             return true;
         }
         return false;

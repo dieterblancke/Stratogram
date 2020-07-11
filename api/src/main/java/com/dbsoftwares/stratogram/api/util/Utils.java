@@ -1,4 +1,4 @@
-package com.dbsoftwares.stratogram.api;
+package com.dbsoftwares.stratogram.api.util;
 
 public class Utils
 {

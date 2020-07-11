@@ -4,14 +4,17 @@ import com.dbsoftwares.stratogram.Stratogram;
 import com.dbsoftwares.stratogram.api.Hologram;
 import com.dbsoftwares.stratogram.api.line.HologramLine;
 import com.dbsoftwares.stratogram.api.line.TextLine;
+import com.dbsoftwares.stratogram.api.util.Players;
 import com.dbsoftwares.stratogram.holograms.line.StratoItemLine;
 import com.dbsoftwares.stratogram.holograms.line.StratoTextLine;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.UnaryOperator;
 
 public class StratoHologram implements Hologram
 {
@@ -20,16 +23,27 @@ public class StratoHologram implements Hologram
     private final long createdAt;
     private Location location;
 
+    private UnaryOperator<String> placeholderFormatFunction;
+    private boolean visibleByDefault = true;
+
     public StratoHologram( final Location location )
     {
         this.location = location;
         this.createdAt = System.currentTimeMillis();
+
+        Stratogram.getInstance().getAllHolograms().add( this );
+    }
+
+    public StratoHologram( final Location location, UnaryOperator<String> placeholderFormatFunction )
+    {
+        this( location );
+        this.placeholderFormatFunction = placeholderFormatFunction;
     }
 
     @Override
     public HologramLine addTextLine( final String text )
     {
-        return this.addLine( new StratoTextLine( this.getNextLineLocation(), text ) );
+        return this.addLine( new StratoTextLine( this.getNextLineLocation(), text, placeholderFormatFunction ) );
     }
 
     @Override
@@ -46,7 +60,7 @@ public class StratoHologram implements Hologram
         }
         final HologramLine line = lines.get( lines.size() - 1 );
         final double margin = Stratogram.getInstance().getConfiguration().getDouble(
-                "spacing." + (line instanceof TextLine ? "text" : "item") + ".bottom"
+                "spacing." + ( line instanceof TextLine ? "text" : "item" ) + ".bottom"
         );
 
         return line.getLocation().clone().subtract( 0, margin, 0 );
@@ -130,6 +144,63 @@ public class StratoHologram implements Hologram
             if ( line.shouldUpdate() )
             {
                 line.update();
+            }
+        }
+    }
+
+    @Override
+    public void setVisibleByDefault( final boolean visible )
+    {
+        if ( this.visibleByDefault != visible )
+        {
+            if ( visible )
+            {
+                Stratogram.getInstance().getHologramManager().sendSpawnPacket( this, Bukkit.getOnlinePlayers() );
+            }
+            else
+            {
+                Stratogram.getInstance().getHologramManager().sendDestroyPacket( this, Bukkit.getOnlinePlayers() );
+            }
+            this.visibleByDefault = visible;
+        }
+    }
+
+    @Override
+    public void hideTo( final Players players )
+    {
+        if ( players.getPlayerNames() == null )
+        {
+            this.showTo( Players.all() );
+        }
+        else
+        {
+            if ( players.isAll() )
+            {
+                this.setVisibleByDefault( false );
+            }
+            else
+            {
+                Stratogram.getInstance().getHologramManager().sendDestroyPacket( this, players.getPlayerList() );
+            }
+        }
+    }
+
+    @Override
+    public void showTo( final Players players )
+    {
+        if ( players.getPlayerNames() == null )
+        {
+            this.hideTo( Players.all() );
+        }
+        else
+        {
+            if ( players.isAll() )
+            {
+                this.setVisibleByDefault( true );
+            }
+            else
+            {
+                Stratogram.getInstance().getHologramManager().sendSpawnPacket( this, players.getPlayerList() );
             }
         }
     }

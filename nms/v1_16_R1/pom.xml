@@ -19,12 +19,6 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.dbsoftwares.stratogram</groupId>
-            <artifactId>nmsapi</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot</artifactId>
             <version>1.16.1</version>

@@ -1,8 +1,8 @@
 package com.dbsoftwares.stratogram.nms.v1_16_R1.hologram;
 
 import com.dbsoftwares.stratogram.api.line.ItemLine;
-import com.dbsoftwares.stratogram.nms.api.hologram.HologramEntity;
-import com.dbsoftwares.stratogram.nms.api.hologram.HologramItem;
+import com.dbsoftwares.stratogram.api.nms.hologram.HologramEntity;
+import com.dbsoftwares.stratogram.api.nms.hologram.HologramItem;
 import com.dbsoftwares.stratogram.nms.v1_16_R1.hologram.craft.CraftStratoItem;
 import lombok.EqualsAndHashCode;
 import net.md_5.bungee.api.ChatColor;

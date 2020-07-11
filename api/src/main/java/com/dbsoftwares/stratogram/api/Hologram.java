@@ -1,6 +1,7 @@
 package com.dbsoftwares.stratogram.api;
 
 import com.dbsoftwares.stratogram.api.line.HologramLine;
+import com.dbsoftwares.stratogram.api.util.Players;
 import org.bukkit.Location;
 import org.bukkit.inventory.ItemStack;
 
@@ -85,4 +86,31 @@ public interface Hologram
      */
     void update();
 
+    /**
+     * The default visibility of the hologram. By setting this to false, the hologram will disappear for all players.
+     * Opposite happens when setting this to true.
+     *
+     * @param visible default visibility of the hologram.
+     */
+    void setVisibleByDefault(boolean visible);
+
+    /**
+     * Hides the hologram from the given players.
+     * Setting this to {@link Players#none()} will call {@link #showTo(Players)} with {@link Players#all()} (aka shows it to everyone).
+     * Setting this to {@link Players#all()} will call {@link #setVisibleByDefault(boolean)} with a {@link Boolean#FALSE} value.
+     * Setting this to {@link Players#none()} will set {@link #setVisibleByDefault(boolean)} with a {@link Boolean#TRUE} value.
+     *
+     * @param players the players to hide the hologram from.
+     */
+    void hideTo( Players players );
+
+    /**
+     * Shows the hologram to the given players.
+     * Setting this to {@link Players#none()} will call {@link #hideTo(Players)} with {@link Players#all()} (aka hides it to everyone).
+     * Setting this to {@link Players#all()} will call {@link #setVisibleByDefault(boolean)} with a {@link Boolean#TRUE} value.
+     * Setting this to {@link Players#none()} will set {@link #setVisibleByDefault(boolean)} with a {@link Boolean#FALSE} value.
+     *
+     * @param players the players to show the hologram to.
+     */
+    void showTo( Players players );
 }

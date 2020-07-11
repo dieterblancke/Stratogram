@@ -1,4 +1,4 @@
-package com.dbsoftwares.stratogram.nms.api.hologram;
+package com.dbsoftwares.stratogram.api.nms.hologram;
 
 import com.dbsoftwares.stratogram.api.line.HologramLine;
 import org.bukkit.entity.Entity;
