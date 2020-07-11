@@ -80,7 +80,7 @@ public interface Hologram
     void delete();
 
     /**
-     * Updates all the hologram lines. If the location which is stored in a ({@link java.lang.ref.WeakReference<Location>})
+     * Updates all the hologram lines. If the location which is stored in a ({@link java.lang.ref.SoftReference<Location>})
      * is removed by GC, this method will automatically delete the hologram as a result.
      */
     void update();

@@ -10,8 +10,6 @@ import org.bukkit.entity.Entity;
 public interface NMSHologramManager
 {
 
-    void registerCustomEntities() throws Exception;
-
     HologramItem spawnHologramItem( Location location, ItemLine line );
 
     HologramArmorStand spawnHologramArmorStand( Location location, TextLine line, boolean broadcast );

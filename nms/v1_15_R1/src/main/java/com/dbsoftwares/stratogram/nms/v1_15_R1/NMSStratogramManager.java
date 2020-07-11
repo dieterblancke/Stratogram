@@ -28,6 +28,7 @@ public class NMSStratogramManager implements NMSHologramManager
         try
         {
             registerEntityMethod = WorldServer.class.getDeclaredMethod( "registerEntity", net.minecraft.server.v1_15_R1.Entity.class );
+            registerEntityMethod.setAccessible( true );
         }
         catch ( NoSuchMethodException e )
         {
@@ -36,20 +37,15 @@ public class NMSStratogramManager implements NMSHologramManager
     }
 
     @Override
-    public void registerCustomEntities() throws Exception
-    {
-    }
-
-    @Override
     public boolean isHologramEntity( final Entity entity )
     {
-        return ( (CraftEntity) entity ).getHandle() instanceof HologramEntity;
+        return ((CraftEntity) entity).getHandle() instanceof HologramEntity;
     }
 
     @Override
     public HologramArmorStand spawnHologramArmorStand( final Location location, final TextLine line, final boolean broadcast )
     {
-        final WorldServer nmsWorld = ( (CraftWorld) location.getWorld() ).getHandle();
+        final WorldServer nmsWorld = ((CraftWorld) location.getWorld()).getHandle();
         final StratogramArmorStand invisibleArmorStand = new StratogramArmorStand( nmsWorld, line );
         invisibleArmorStand.setHologramLocation( location.getX(), location.getY(), location.getZ(), broadcast );
 
@@ -63,7 +59,7 @@ public class NMSStratogramManager implements NMSHologramManager
     @Override
     public HologramItem spawnHologramItem( final Location location, final ItemLine line )
     {
-        final WorldServer nmsWorld = ( (CraftWorld) location.getWorld() ).getHandle();
+        final WorldServer nmsWorld = ((CraftWorld) location.getWorld()).getHandle();
         final StratogramItem customItem = new StratogramItem( nmsWorld, line );
         customItem.setHologramLocation( location.getX(), location.getY(), location.getZ() );
         customItem.setHologramItemStack( line.getItem() );
@@ -77,7 +73,7 @@ public class NMSStratogramManager implements NMSHologramManager
 
     private boolean addEntityToWorld( WorldServer nmsWorld, net.minecraft.server.v1_15_R1.Entity nmsEntity )
     {
-        if ( Bukkit.isPrimaryThread() )
+        if ( !Bukkit.isPrimaryThread() )
         {
             throw new RuntimeException( "Async entity add" );
         }

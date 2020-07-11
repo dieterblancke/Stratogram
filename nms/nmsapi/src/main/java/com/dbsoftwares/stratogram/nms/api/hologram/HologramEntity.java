@@ -12,4 +12,6 @@ public interface HologramEntity
     void destroyHologramEntity();
 
     Entity getBukkitEntity();
+
+    void setHologramLocation( double x, double y, double z );
 }

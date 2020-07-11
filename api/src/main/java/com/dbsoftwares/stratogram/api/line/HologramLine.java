@@ -43,4 +43,5 @@ public interface HologramLine
      * @param location the location to teleport to.
      */
     void teleport( Location location );
+
 }

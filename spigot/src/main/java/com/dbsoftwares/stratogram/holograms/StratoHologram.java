@@ -3,12 +3,12 @@ package com.dbsoftwares.stratogram.holograms;
 import com.dbsoftwares.stratogram.Stratogram;
 import com.dbsoftwares.stratogram.api.Hologram;
 import com.dbsoftwares.stratogram.api.line.HologramLine;
+import com.dbsoftwares.stratogram.api.line.TextLine;
 import com.dbsoftwares.stratogram.holograms.line.StratoItemLine;
 import com.dbsoftwares.stratogram.holograms.line.StratoTextLine;
 import org.bukkit.Location;
 import org.bukkit.inventory.ItemStack;
 
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -18,11 +18,11 @@ public class StratoHologram implements Hologram
 
     protected final List<HologramLine> lines = Collections.synchronizedList( new ArrayList<>() );
     private final long createdAt;
-    private WeakReference<Location> location;
+    private Location location;
 
     public StratoHologram( final Location location )
     {
-        this.location = new WeakReference<>( location );
+        this.location = location;
         this.createdAt = System.currentTimeMillis();
     }
 
@@ -40,7 +40,16 @@ public class StratoHologram implements Hologram
 
     private Location getNextLineLocation()
     {
-        return lines.isEmpty() ? location.get() : lines.get( lines.size() - 1 ).getLocation();
+        if ( lines.isEmpty() )
+        {
+            return this.location;
+        }
+        final HologramLine line = lines.get( lines.size() - 1 );
+        final double margin = Stratogram.getInstance().getConfiguration().getDouble(
+                "spacing." + (line instanceof TextLine ? "text" : "item") + ".bottom"
+        );
+
+        return line.getLocation().clone().subtract( 0, margin, 0 );
     }
 
     private HologramLine addLine( final HologramLine line )
@@ -87,12 +96,7 @@ public class StratoHologram implements Hologram
         final List<HologramLine> tempLines = new ArrayList<>( this.lines );
         this.clear();
 
-        if ( this.location != null )
-        {
-            this.location.clear();
-        }
-
-        this.location = new WeakReference<>( location );
+        this.location = location;
         for ( HologramLine line : tempLines )
         {
             line.teleport( this.getNextLineLocation() );
@@ -103,7 +107,7 @@ public class StratoHologram implements Hologram
     @Override
     public Location getLocation()
     {
-        return this.location == null ? null : this.location.get();
+        return this.location;
     }
 
     @Override
@@ -121,13 +125,6 @@ public class StratoHologram implements Hologram
     @Override
     public void update()
     {
-        if ( this.location == null || this.location.get() == null )
-        {
-            this.attemptDeletion();
-            Stratogram.getInstance().debug( "A hologram got deleted because the location got removed by garbage collection." );
-            return;
-        }
-
         for ( HologramLine line : lines )
         {
             if ( line.shouldUpdate() )
@@ -139,10 +136,7 @@ public class StratoHologram implements Hologram
 
     private void attemptDeletion()
     {
-        if ( this.location != null )
-        {
-            this.location.clear();
-        }
+        this.location = null;
         this.clear();
     }
 }

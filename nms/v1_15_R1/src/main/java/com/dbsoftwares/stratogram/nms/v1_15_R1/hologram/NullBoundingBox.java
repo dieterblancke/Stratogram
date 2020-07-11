@@ -1,6 +1,9 @@
 package com.dbsoftwares.stratogram.nms.v1_15_R1.hologram;
 
-import net.minecraft.server.v1_15_R1.*;
+import net.minecraft.server.v1_15_R1.AxisAlignedBB;
+import net.minecraft.server.v1_15_R1.BlockPosition;
+import net.minecraft.server.v1_15_R1.EnumDirection;
+import net.minecraft.server.v1_15_R1.Vec3D;
 
 public class NullBoundingBox extends AxisAlignedBB
 {

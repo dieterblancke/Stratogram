@@ -10,7 +10,7 @@ import net.minecraft.server.v1_16_R1.*;
 import org.bukkit.craftbukkit.v1_16_R1.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_16_R1.util.CraftChatMessage;
 
-@EqualsAndHashCode( callSuper = true )
+@EqualsAndHashCode(callSuper = true)
 public class StratogramArmorStand extends EntityArmorStand implements HologramArmorStand
 {
 
@@ -59,35 +59,41 @@ public class StratogramArmorStand extends EntityArmorStand implements HologramAr
     }
 
     @Override
-    public void saveData(NBTTagCompound nbttagcompound) {
+    public void saveData( NBTTagCompound nbttagcompound )
+    {
         // Do not save NBT.
     }
 
     @Override
-    public boolean a_(NBTTagCompound nbttagcompound) {
-        // Do not save NBT.
-        return false;
-    }
-
-    @Override
-    public boolean d(NBTTagCompound nbttagcompound) {
+    public boolean a_( NBTTagCompound nbttagcompound )
+    {
         // Do not save NBT.
         return false;
     }
 
     @Override
-    public NBTTagCompound save(NBTTagCompound nbttagcompound) {
+    public boolean d( NBTTagCompound nbttagcompound )
+    {
+        // Do not save NBT.
+        return false;
+    }
+
+    @Override
+    public NBTTagCompound save( NBTTagCompound nbttagcompound )
+    {
         // Do not save NBT.
         return nbttagcompound;
     }
 
     @Override
-    public void load(NBTTagCompound nbttagcompound) {
+    public void load( NBTTagCompound nbttagcompound )
+    {
         // Do not load NBT.
     }
 
     @Override
-    public void loadData(NBTTagCompound nbttagcompound) {
+    public void loadData( NBTTagCompound nbttagcompound )
+    {
         // Do not load NBT.
     }
 
@@ -152,7 +158,8 @@ public class StratogramArmorStand extends EntityArmorStand implements HologramAr
     }
 
     @Override
-    public void playSound(SoundEffect soundeffect, float f, float f1) {
+    public void playSound( SoundEffect soundeffect, float f, float f1 )
+    {
         // Remove sounds.
     }
 

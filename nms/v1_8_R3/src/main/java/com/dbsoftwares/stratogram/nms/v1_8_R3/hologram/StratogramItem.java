@@ -1,6 +1,7 @@
 package com.dbsoftwares.stratogram.nms.v1_8_R3.hologram;
 
 import com.dbsoftwares.stratogram.api.line.ItemLine;
+import com.dbsoftwares.stratogram.nms.api.hologram.HologramEntity;
 import com.dbsoftwares.stratogram.nms.api.hologram.HologramItem;
 import com.dbsoftwares.stratogram.nms.v1_8_R3.hologram.craft.CraftStratoItem;
 import lombok.EqualsAndHashCode;
@@ -9,9 +10,27 @@ import net.minecraft.server.v1_8_R3.*;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftItemStack;
 
-@EqualsAndHashCode( callSuper = true )
+import java.lang.reflect.Field;
+
+@EqualsAndHashCode(callSuper = true)
 public class StratogramItem extends EntityItem implements HologramItem
 {
+
+    private static Field riderPitchDelta;
+    private static Field riderYawDelta;
+
+    static
+    {
+        try
+        {
+            riderPitchDelta = Entity.class.getDeclaredField( "ar" );
+            riderYawDelta = Entity.class.getDeclaredField( "as" );
+        }
+        catch ( NoSuchFieldException e )
+        {
+            e.printStackTrace();
+        }
+    }
 
     private final ItemLine itemLine;
 
@@ -20,6 +39,7 @@ public class StratogramItem extends EntityItem implements HologramItem
         super( world );
         super.pickupDelay = Integer.MAX_VALUE;
         this.itemLine = itemLine;
+        this.noclip = true;
     }
 
     @Override
@@ -38,6 +58,12 @@ public class StratogramItem extends EntityItem implements HologramItem
 
         // So it won't get removed.
         ticksLived = 0;
+    }
+
+    @Override
+    protected void burn( float i )
+    {
+        // do nothing
     }
 
     // Method called when a player is near.
@@ -122,7 +148,7 @@ public class StratogramItem extends EntityItem implements HologramItem
     @Override
     public void destroyHologramEntity()
     {
-        super.dead = true;
+        this.dead = true;
     }
 
     @Override
@@ -144,7 +170,7 @@ public class StratogramItem extends EntityItem implements HologramItem
 
         if ( newItem == null )
         {
-            newItem = new ItemStack( Blocks.BEDROCK );
+            newItem = new ItemStack( Blocks.BARRIER );
         }
 
         if ( newItem.getTag() == null )
@@ -163,5 +189,17 @@ public class StratogramItem extends EntityItem implements HologramItem
         display.set( "Lore", tagList );
 
         setItemStack( newItem );
+    }
+
+    @Override
+    public void setPassengerOf( final HologramEntity hologramEntity )
+    {
+        if ( !(hologramEntity instanceof Entity) )
+        {
+            return;
+        }
+
+        final Entity entity = (Entity) hologramEntity;
+        this.mount( entity );
     }
 }

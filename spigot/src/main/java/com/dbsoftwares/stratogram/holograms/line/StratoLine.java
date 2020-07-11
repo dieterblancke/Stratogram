@@ -1,20 +1,15 @@
 package com.dbsoftwares.stratogram.holograms.line;
 
-import com.dbsoftwares.configuration.api.ISection;
-import com.dbsoftwares.configuration.json.JsonSection;
 import com.dbsoftwares.stratogram.api.line.HologramLine;
-import com.dbsoftwares.stratogram.api.line.ItemLine;
 import com.dbsoftwares.stratogram.nms.api.hologram.HologramEntity;
 import org.bukkit.Location;
-
-import java.lang.ref.WeakReference;
 
 public abstract class StratoLine implements HologramLine
 {
 
     private final long updateDelay;
-    protected WeakReference<Location> location;
-    protected WeakReference<HologramEntity> nmsEntity;
+    protected Location location;
+    protected HologramEntity nmsEntity;
     private long lastUpdate;
 
     public StratoLine( final Location location )
@@ -24,26 +19,31 @@ public abstract class StratoLine implements HologramLine
 
     public StratoLine( final Location location, final int updateDelay )
     {
-        this.location = new WeakReference<>( location );
+        this.location = location;
         this.updateDelay = updateDelay;
     }
 
     @Override
     public Location getLocation()
     {
-        return location == null ? null : location.get();
+        return location;
     }
 
     @Override
     public void teleport( final Location location )
     {
-        this.location = new WeakReference<>( location );
+        this.location = location;
     }
 
     @Override
     public void update()
     {
         lastUpdate = System.currentTimeMillis();
+
+        if ( nmsEntity != null )
+        {
+            nmsEntity.setHologramLocation( this.location.getX(), this.location.getY(), this.getLocation().getZ() );
+        }
     }
 
     @Override
@@ -52,32 +52,12 @@ public abstract class StratoLine implements HologramLine
         return updateDelay == -1 || System.currentTimeMillis() > lastUpdate + updateDelay;
     }
 
-    @Override
-    public ISection asSection()
-    {
-        return new JsonSection();
-    }
-
     protected void attemptDeletion()
     {
         // Destroying ArmorStand entity if it exists
         if ( this.nmsEntity != null )
         {
-            final HologramEntity item = this.nmsEntity.get();
-
-            if ( item != null )
-            {
-                item.destroyHologramEntity();
-            }
-        }
-        // Clearing contents of WeakReferences
-        if ( this.nmsEntity != null )
-        {
-            this.nmsEntity.clear();
-        }
-        if ( this.location != null )
-        {
-            this.location.clear();
+            this.nmsEntity.destroyHologramEntity();
         }
         // Setting all variables to null
         this.nmsEntity = null;

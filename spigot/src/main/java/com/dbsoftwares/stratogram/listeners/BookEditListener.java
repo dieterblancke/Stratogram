@@ -20,6 +20,6 @@ public class BookEditListener implements Listener
             return;
         }
 
-        editor.submit( String.join( "\n", meta.getPages() ) );
+        editor.submit( meta.getPages() );
     }
 }

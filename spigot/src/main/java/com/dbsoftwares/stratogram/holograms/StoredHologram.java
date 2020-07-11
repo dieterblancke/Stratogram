@@ -3,57 +3,83 @@ package com.dbsoftwares.stratogram.holograms;
 import com.dbsoftwares.configuration.api.ISection;
 import com.dbsoftwares.configuration.json.JsonSection;
 import com.dbsoftwares.stratogram.api.line.HologramLine;
+import com.dbsoftwares.stratogram.utils.Locations;
+import com.dbsoftwares.stratogram.utils.XMaterial;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.bukkit.Location;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
+@Data
+@EqualsAndHashCode(callSuper = true)
 public class StoredHologram extends StratoHologram
 {
 
-    public StoredHologram( final Location location )
+    private String name;
+    private List<String> pages;
+
+    public StoredHologram( final String name, final List<String> pages, final Location location )
     {
         super( location );
+        this.name = name;
+        this.setPages( pages );
     }
 
     public StoredHologram( final ISection section )
     {
-        this( section.spigot().getLocation( "location" ) );
+        this( section.getString( "name" ), section.getStringList( "pages" ), Locations.toLocation( section.getString( "location" ) ) );
+    }
 
-        final List<ISection> sections = section.getSectionList( "lines" );
-        for ( ISection lineSection : sections )
+    public void setPages( final List<String> pages )
+    {
+        this.clear();
+        this.pages = pages;
+
+        for ( String page : pages )
         {
-            final String type = lineSection.getString( "type" );
+            for ( String line : page.split( "\n" ) )
+            {
+                if ( line.startsWith( "item:" ) )
+                {
+                    final Optional<XMaterial> optionalXMaterial = XMaterial.matchXMaterial( line.replace( "item:", "" ) );
 
-            if ( type.equalsIgnoreCase( "text" ) )
-            {
-                super.addTextLine( lineSection.getString( "data" ) );
-            }
-            else if ( type.equalsIgnoreCase( "item" ) )
-            {
-                super.addItemLine( lineSection.spigot().getItemStack( "data" ) );
+                    optionalXMaterial.ifPresent( xMaterial -> this.addItemLine( xMaterial.parseItem() ) );
+                }
+                else
+                {
+                    this.addTextLine( line );
+                }
             }
         }
     }
 
-    public ISection saveHologram()
+    public ISection asSection()
     {
         final JsonSection section = new JsonSection();
         final Location location = super.getLocation();
         final List<ISection> lines = this.getLinesAsSectionList();
 
-        if ( location == null || lines.isEmpty() )
+        if ( location == null )
         {
-            return null;
+            throw new RuntimeException( "Location is null" );
+        }
+        if ( lines.isEmpty() )
+        {
+            throw new RuntimeException( "Lines are empty" );
         }
 
-        section.set( "location", location );
-        section.set( "lines", lines );
+        section.set( "name", this.name );
+        section.set( "pages", this.pages );
+        section.set( "location", Locations.toString( location ) );
 
         return section;
     }
 
-    private List<ISection> getLinesAsSectionList() {
+    private List<ISection> getLinesAsSectionList()
+    {
         final List<ISection> lines = new ArrayList<>();
 
         for ( HologramLine line : super.lines )

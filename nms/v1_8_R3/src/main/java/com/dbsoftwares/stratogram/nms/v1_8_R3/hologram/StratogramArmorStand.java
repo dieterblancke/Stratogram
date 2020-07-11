@@ -12,7 +12,7 @@ import org.bukkit.craftbukkit.v1_8_R3.entity.CraftEntity;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
-@EqualsAndHashCode( callSuper = true )
+@EqualsAndHashCode(callSuper = true)
 public class StratogramArmorStand extends EntityArmorStand implements HologramArmorStand
 {
 
@@ -25,6 +25,9 @@ public class StratogramArmorStand extends EntityArmorStand implements HologramAr
         {
             disabledSlotsField = EntityArmorStand.class.getDeclaredField( "bi" );
             setMarkerMethod = EntityArmorStand.class.getDeclaredMethod( "n", boolean.class );
+
+            disabledSlotsField.setAccessible( true );
+            setMarkerMethod.setAccessible( true );
         }
         catch ( NoSuchMethodException | NoSuchFieldException e )
         {

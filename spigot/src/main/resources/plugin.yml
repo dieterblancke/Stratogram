@@ -2,4 +2,4 @@ name: Stratogram
 version: ${project.version}
 main: com.dbsoftwares.stratogram.Stratogram
 author: didjee2
-depend: [ProtocolLib]
+softdepend: [ProtocolLib]

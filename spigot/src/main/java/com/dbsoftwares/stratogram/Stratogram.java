@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
@@ -29,7 +30,7 @@ public class Stratogram extends JavaPlugin
 
     @Getter
     private static Stratogram instance;
-    private final List<StoredHologram> storedHolograms = new ArrayList<>();
+    private final List<StoredHologram> storedHolograms = Collections.synchronizedList( new ArrayList<>() );
     private IConfiguration configuration;
     private IConfiguration holograms;
     private NMSHologramManager hologramManager;
@@ -39,11 +40,11 @@ public class Stratogram extends JavaPlugin
     {
         instance = this;
 
-        this.getLogger().info( "Loading configuration data ..." );
-        this.loadConfigurationFiles();
-
         this.getLogger().info( "Searching NMS handler for " + ReflectionUtils.getServerVersion() + " ..." );
         this.registerHologramManager();
+
+        this.getLogger().info( "Loading configuration data ..." );
+        this.loadConfigurationFiles();
 
         this.getLogger().info( "Registering commands ..." );
         this.registerCommands();
@@ -52,15 +53,41 @@ public class Stratogram extends JavaPlugin
         this.registerListeners();
     }
 
+    @Override
+    public void onDisable()
+    {
+        for ( StoredHologram hologram : this.storedHolograms )
+        {
+            hologram.delete();
+        }
+    }
+
+    public void reload()
+    {
+        for ( StoredHologram hologram : this.storedHolograms )
+        {
+            hologram.delete();
+        }
+        this.storedHolograms.clear();
+        this.loadConfigurationFiles();
+    }
+
     private void loadConfigurationFiles()
     {
         this.configuration = loadConfigurationFile( FileStorageType.YAML, "config.yml", true );
         this.holograms = loadConfigurationFile( FileStorageType.JSON, "holograms.json", false );
 
-        final List<ISection> hologramSections = this.holograms.getSectionList( "holograms" );
-        for ( ISection section : hologramSections )
+        if ( this.holograms != null )
         {
-            this.storedHolograms.add( new StoredHologram( section ) );
+            final List<ISection> hologramSections = this.holograms.getSectionList( "holograms" );
+
+            if ( hologramSections != null && !hologramSections.isEmpty() )
+            {
+                for ( ISection section : hologramSections )
+                {
+                    this.storedHolograms.add( new StoredHologram( section ) );
+                }
+            }
         }
     }
 
@@ -69,7 +96,14 @@ public class Stratogram extends JavaPlugin
         final List<ISection> sections = new ArrayList<>();
         for ( StoredHologram hologram : this.storedHolograms )
         {
-            sections.add( hologram.saveHologram() );
+            try
+            {
+                sections.add( hologram.asSection() );
+            }
+            catch ( RuntimeException e )
+            {
+                e.printStackTrace();
+            }
         }
         holograms.set( "holograms", sections );
         try
@@ -115,7 +149,6 @@ public class Stratogram extends JavaPlugin
             final Class<?> clazz = Class.forName( "com.dbsoftwares.stratogram.nms." + ReflectionUtils.getServerVersion() + ".NMSStratogramManager" );
 
             this.hologramManager = (NMSHologramManager) clazz.getConstructor().newInstance();
-            this.hologramManager.registerCustomEntities();
         }
         catch ( ClassNotFoundException e )
         {
@@ -125,12 +158,6 @@ public class Stratogram extends JavaPlugin
         {
             e.printStackTrace();
         }
-    }
-
-    @Override
-    public void onDisable()
-    {
-
     }
 
     private void registerCommands()
@@ -149,7 +176,7 @@ public class Stratogram extends JavaPlugin
                 .register( this );
     }
 
-    @SuppressWarnings( "all" )
+    @SuppressWarnings("all")
     private void registerListeners()
     {
         try
@@ -183,5 +210,17 @@ public class Stratogram extends JavaPlugin
         {
             this.getLogger().info( text );
         }
+    }
+
+    public StoredHologram searchHologram( final String name )
+    {
+        for ( StoredHologram hologram : this.storedHolograms )
+        {
+            if ( hologram.getName().equalsIgnoreCase( name ) )
+            {
+                return hologram;
+            }
+        }
+        return null;
     }
 }

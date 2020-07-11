@@ -1,14 +1,19 @@
 package com.dbsoftwares.stratogram.holograms.line;
 
 import com.dbsoftwares.configuration.api.ISection;
+import com.dbsoftwares.configuration.json.JsonSection;
 import com.dbsoftwares.stratogram.Stratogram;
 import com.dbsoftwares.stratogram.api.line.TextLine;
 import com.dbsoftwares.stratogram.nms.api.hologram.HologramArmorStand;
 import com.dbsoftwares.stratogram.pluginhooks.PluginHooks;
+import com.dbsoftwares.stratogram.utils.Locations;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Location;
 
-import java.lang.ref.WeakReference;
-
+@Data
+@EqualsAndHashCode(callSuper = true)
 public class StratoTextLine extends StratoLine implements TextLine
 {
 
@@ -17,18 +22,25 @@ public class StratoTextLine extends StratoLine implements TextLine
 
     public StratoTextLine( final Location previousLine, final String text )
     {
-        super( previousLine.clone().add( 0, Stratogram.getInstance().getConfiguration().getDouble( "spacing.text" ), 0 ) );
+        super( previousLine.clone().subtract( 0, Stratogram.getInstance().getConfiguration().getDouble( "spacing.text.top" ), 0 ) );
         this.setText( text );
+        Stratogram.getInstance().debug( "Spawning a text line at " + Locations.toString( super.getLocation() ) + "." );
     }
 
     @Override
     public String getText()
     {
+        if ( this.text == null )
+        {
+            return null;
+        }
+        final String text = ChatColor.translateAlternateColorCodes( '&', this.text );
+
         return placeHoldersFound ? PluginHooks.PLACEHOLDERAPI.setPlaceHolders( text ) : text;
     }
 
     @Override
-    public void setText( String text )
+    public void setText( final String text )
     {
         this.placeHoldersFound = hasPlaceHolders( text );
         this.text = text;
@@ -45,23 +57,14 @@ public class StratoTextLine extends StratoLine implements TextLine
     @Override
     public void update()
     {
-        if ( this.location == null || this.location.get() == null || (this.nmsEntity != null && this.nmsEntity.get() == null) )
-        {
-            this.attemptDeletion();
-            Stratogram.getInstance().debug( "A hologram line got deleted because the entity got removed by garbage collection." );
-            return;
-        }
         super.update();
+        this.spawnIfDead();
 
-        // This method returns false if the ArmorStand was already spawned
-        if ( !this.spawnIfDead() )
+        if ( this.nmsEntity != null )
         {
-            final HologramArmorStand armorStand = (HologramArmorStand) this.nmsEntity.get();
+            final HologramArmorStand armorStand = (HologramArmorStand) this.nmsEntity;
 
-            if ( armorStand != null )
-            {
-                armorStand.setHologramCustomName( this.getText() );
-            }
+            armorStand.setHologramCustomName( this.getText() );
         }
     }
 
@@ -69,8 +72,7 @@ public class StratoTextLine extends StratoLine implements TextLine
     {
         if ( this.nmsEntity == null )
         {
-            final HologramArmorStand entity = Stratogram.getInstance().getHologramManager().spawnHologramArmorStand( this.location.get(), this, true );
-            this.nmsEntity = new WeakReference<>( entity );
+            this.nmsEntity = Stratogram.getInstance().getHologramManager().spawnHologramArmorStand( this.location, this, true );
             return true;
         }
         return false;
@@ -97,7 +99,7 @@ public class StratoTextLine extends StratoLine implements TextLine
     @Override
     public ISection asSection()
     {
-        final ISection section = super.asSection();
+        final ISection section = new JsonSection();
 
         section.set( "type", "text" );
         section.set( "data", this.text );

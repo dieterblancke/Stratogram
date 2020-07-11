@@ -10,7 +10,7 @@ import net.minecraft.server.v1_15_R1.*;
 import org.bukkit.craftbukkit.v1_15_R1.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_15_R1.util.CraftChatMessage;
 
-@EqualsAndHashCode( callSuper = true )
+@EqualsAndHashCode(callSuper = true)
 public class StratogramArmorStand extends EntityArmorStand implements HologramArmorStand
 {
 

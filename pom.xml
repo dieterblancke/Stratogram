@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.dbsoftwares.stratogram</groupId>
     <artifactId>Stratogram</artifactId>
     <packaging>pom</packaging>
-    <version>0.0.1</version>
+    <version>0.0.3</version>
     <modules>
         <module>api</module>
         <module>spigot</module>
@@ -56,31 +56,6 @@
                     <source>8</source>
                     <target>8</target>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>3.2.1</version>
-                <configuration>
-                    <relocations>
-                        <relocation>
-                            <pattern>com.dbsoftwares.configuration</pattern>
-                            <shadedPattern>com.dbsoftwares.stratogram.internal.configuration</shadedPattern>
-                        </relocation>
-                        <relocation>
-                            <pattern>com.dbsoftwares.commands</pattern>
-                            <shadedPattern>com.dbsoftwares.stratogram.internal.commandapi</shadedPattern>
-                        </relocation>
-                    </relocations>
-                </configuration>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
         <resources>

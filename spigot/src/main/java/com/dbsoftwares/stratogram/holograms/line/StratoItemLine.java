@@ -1,23 +1,30 @@
 package com.dbsoftwares.stratogram.holograms.line;
 
 import com.dbsoftwares.configuration.api.ISection;
+import com.dbsoftwares.configuration.json.JsonSection;
 import com.dbsoftwares.stratogram.Stratogram;
 import com.dbsoftwares.stratogram.api.line.ItemLine;
+import com.dbsoftwares.stratogram.nms.api.hologram.HologramArmorStand;
 import com.dbsoftwares.stratogram.nms.api.hologram.HologramItem;
+import com.dbsoftwares.stratogram.utils.Locations;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.bukkit.Location;
 import org.bukkit.inventory.ItemStack;
 
-import java.lang.ref.WeakReference;
-
+@Data
+@EqualsAndHashCode(callSuper = true)
 public class StratoItemLine extends StratoLine implements ItemLine
 {
 
     private ItemStack item;
+    private HologramArmorStand nmsVehicle;
 
     public StratoItemLine( final Location previousLine, final ItemStack item )
     {
-        super( previousLine.clone().add( 0, Stratogram.getInstance().getConfiguration().getDouble( "spacing.item" ), 0 ) );
+        super( previousLine.clone().subtract( 0, Stratogram.getInstance().getConfiguration().getDouble( "spacing.item.top" ), 0 ) );
         this.setItem( item );
+        Stratogram.getInstance().debug( "Spawning an item line at " + Locations.toString( super.getLocation() ) + "." );
     }
 
     @Override
@@ -30,6 +37,7 @@ public class StratoItemLine extends StratoLine implements ItemLine
     public void setItem( final ItemStack item )
     {
         this.item = item;
+        this.update();
     }
 
     @Override
@@ -41,23 +49,13 @@ public class StratoItemLine extends StratoLine implements ItemLine
     @Override
     public void update()
     {
-        if ( this.location == null || this.location.get() == null || (this.nmsEntity != null && this.nmsEntity.get() == null) )
-        {
-            this.attemptDeletion();
-            Stratogram.getInstance().debug( "A hologram line got deleted because the entity got removed by garbage collection." );
-            return;
-        }
         super.update();
 
-        // This method returns false if the ArmorStand was already spawned
         if ( !this.spawnIfDead() )
         {
-            final HologramItem item = (HologramItem) this.nmsEntity.get();
+            final HologramItem item = (HologramItem) this.nmsEntity;
 
-            if ( item != null )
-            {
-                item.setHologramItemStack( this.getItem() );
-            }
+            item.setHologramItemStack( this.getItem() );
         }
     }
 
@@ -65,8 +63,10 @@ public class StratoItemLine extends StratoLine implements ItemLine
     {
         if ( this.nmsEntity == null )
         {
-            final HologramItem entity = Stratogram.getInstance().getHologramManager().spawnHologramItem( this.location.get(), this );
-            this.nmsEntity = new WeakReference<>( entity );
+            this.nmsEntity = Stratogram.getInstance().getHologramManager().spawnHologramItem( this.location, this );
+            this.nmsVehicle = Stratogram.getInstance().getHologramManager().spawnHologramArmorStand( location, null, true );
+
+            ((HologramItem) this.nmsEntity).setPassengerOf( this.nmsVehicle );
             return true;
         }
         return false;
@@ -75,10 +75,10 @@ public class StratoItemLine extends StratoLine implements ItemLine
     @Override
     public ISection asSection()
     {
-        final ISection section = super.asSection();
+        final ISection section = new JsonSection();
 
         section.set( "type", "item" );
-        section.set( "data", this.item );
+        section.set( "data", this.item.getType().toString() );
 
         return section;
     }
@@ -94,6 +94,13 @@ public class StratoItemLine extends StratoLine implements ItemLine
     protected void attemptDeletion()
     {
         super.attemptDeletion();
+
+        if ( this.nmsVehicle != null )
+        {
+            this.nmsVehicle.destroyHologramEntity();
+        }
+
         this.item = null;
+        this.nmsVehicle = null;
     }
 }

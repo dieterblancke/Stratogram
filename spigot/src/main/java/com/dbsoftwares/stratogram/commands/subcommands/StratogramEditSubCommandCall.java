@@ -4,16 +4,13 @@ import com.dbsoftwares.commands.CommandCall;
 import com.dbsoftwares.stratogram.Stratogram;
 import com.dbsoftwares.stratogram.book.BookEditor;
 import com.dbsoftwares.stratogram.holograms.StoredHologram;
-import com.dbsoftwares.stratogram.utils.XMaterial;
 import net.md_5.bungee.api.ChatColor;
-import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.List;
-import java.util.Optional;
 
-public class StratogramCreateSubCommandCall implements CommandCall
+public class StratogramEditSubCommandCall implements CommandCall
 {
 
     @Override
@@ -26,30 +23,31 @@ public class StratogramCreateSubCommandCall implements CommandCall
         }
         if ( args.isEmpty() )
         {
-            sender.sendMessage( ChatColor.YELLOW + "Please use " + ChatColor.AQUA + "/sg bcreate (name)" + ChatColor.YELLOW + "!" );
+            sender.sendMessage( ChatColor.YELLOW + "Please use " + ChatColor.AQUA + "/sg bedit (name)" + ChatColor.YELLOW + "!" );
             return;
         }
         final Player player = (Player) sender;
-        final Location location = player.getLocation();
         final String name = args.get( 0 );
+        final StoredHologram hologram = Stratogram.getInstance().searchHologram( name );
 
-        if ( Stratogram.getInstance().searchHologram( name ) != null )
+        if ( hologram == null )
         {
-            sender.sendMessage( ChatColor.YELLOW + "Please use " + ChatColor.AQUA + "unique names" + ChatColor.YELLOW + " for holograms!" );
+            sender.sendMessage( ChatColor.YELLOW + "Could not find a hologram with the name " + ChatColor.AQUA + name + ChatColor.YELLOW + "!" );
             return;
         }
 
         BookEditor.newEditor()
                 .onSubmit( ( pages, text ) ->
                 {
-                    final StoredHologram hologram = new StoredHologram( name, pages, location );
-
-                    Stratogram.getInstance().getStoredHolograms().add( hologram );
+                    hologram.setPages( pages );
+                    hologram.update();
                     Stratogram.getInstance().saveHolograms();
-                    player.sendMessage( ChatColor.YELLOW + "A hologram was created at the location you executed this command!" );
+
+                    player.sendMessage( ChatColor.YELLOW + "The hologram " + ChatColor.AQUA + name + ChatColor.YELLOW + " was edited successfully!" );
                 } )
+                .withPages( hologram.getPages() )
                 .open( player );
 
-        player.sendMessage( ChatColor.YELLOW + "Please open this writable book and write the hologram text!" );
+        player.sendMessage( ChatColor.YELLOW + "Please open this writable book and edit the hologram text!" );
     }
 }

@@ -1,6 +1,7 @@
 package com.dbsoftwares.stratogram.nms.v1_16_R1.hologram;
 
 import com.dbsoftwares.stratogram.api.line.ItemLine;
+import com.dbsoftwares.stratogram.nms.api.hologram.HologramEntity;
 import com.dbsoftwares.stratogram.nms.api.hologram.HologramItem;
 import com.dbsoftwares.stratogram.nms.v1_16_R1.hologram.craft.CraftStratoItem;
 import lombok.EqualsAndHashCode;
@@ -9,9 +10,25 @@ import net.minecraft.server.v1_16_R1.*;
 import org.bukkit.craftbukkit.v1_16_R1.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_16_R1.inventory.CraftItemStack;
 
-@EqualsAndHashCode( callSuper = true )
+import java.lang.reflect.Field;
+
+@EqualsAndHashCode(callSuper = true)
 public class StratogramItem extends EntityItem implements HologramItem
 {
+
+    private static Field vehicleField;
+
+    static
+    {
+        try
+        {
+            vehicleField = Entity.class.getDeclaredField( "vehicle" );
+        }
+        catch ( NoSuchFieldException e )
+        {
+            e.printStackTrace();
+        }
+    }
 
     private final ItemLine itemLine;
     private CraftEntity customBukkitEntity;
@@ -41,6 +58,15 @@ public class StratogramItem extends EntityItem implements HologramItem
         ticksLived = 0;
     }
 
+    @Override
+    public void entityBaseTick()
+    {
+        // Disable normal ticking for this entity.
+
+        // So it won't get removed.
+        ticksLived = 0;
+    }
+
     // Method called when a player is near.
     @Override
     public void pickup( EntityHuman human )
@@ -49,35 +75,41 @@ public class StratogramItem extends EntityItem implements HologramItem
     }
 
     @Override
-    public void saveData(NBTTagCompound nbttagcompound) {
+    public void saveData( NBTTagCompound nbttagcompound )
+    {
         // Do not save NBT.
     }
 
     @Override
-    public boolean a_(NBTTagCompound nbttagcompound) {
-        // Do not save NBT.
-        return false;
-    }
-
-    @Override
-    public boolean d(NBTTagCompound nbttagcompound) {
+    public boolean a_( NBTTagCompound nbttagcompound )
+    {
         // Do not save NBT.
         return false;
     }
 
     @Override
-    public NBTTagCompound save(NBTTagCompound nbttagcompound) {
+    public boolean d( NBTTagCompound nbttagcompound )
+    {
+        // Do not save NBT.
+        return false;
+    }
+
+    @Override
+    public NBTTagCompound save( NBTTagCompound nbttagcompound )
+    {
         // Do not save NBT.
         return nbttagcompound;
     }
 
     @Override
-    public void load(NBTTagCompound nbttagcompound) {
+    public void load( NBTTagCompound nbttagcompound )
+    {
         // Do not load NBT.
     }
 
     @Override
-    public void loadData(NBTTagCompound nbttagcompound) {
+    public void loadData( NBTTagCompound nbttagcompound )
+    {
         // Do not load NBT.
     }
 
@@ -93,7 +125,8 @@ public class StratogramItem extends EntityItem implements HologramItem
     }
 
     @Override
-    public boolean isCollidable() {
+    public boolean isCollidable()
+    {
         return false;
     }
 
@@ -114,11 +147,11 @@ public class StratogramItem extends EntityItem implements HologramItem
     @Override
     public CraftEntity getBukkitEntity()
     {
-        if ( customBukkitEntity  == null )
+        if ( customBukkitEntity == null )
         {
-            customBukkitEntity  = new CraftStratoItem( this.world.getServer(), this );
+            customBukkitEntity = new CraftStratoItem( this.world.getServer(), this );
         }
-        return customBukkitEntity ;
+        return customBukkitEntity;
     }
 
     @Override
@@ -158,7 +191,7 @@ public class StratogramItem extends EntityItem implements HologramItem
 
         if ( newItem == null )
         {
-            newItem = new ItemStack( Blocks.BEDROCK );
+            newItem = new ItemStack( Blocks.BARRIER );
         }
 
         if ( newItem.getTag() == null )
@@ -177,5 +210,36 @@ public class StratogramItem extends EntityItem implements HologramItem
         display.set( "Lore", tagList );
 
         setItemStack( newItem );
+    }
+
+    @Override
+    public void setPassengerOf( HologramEntity hologramEntity )
+    {
+        if ( !(hologramEntity instanceof Entity) )
+        {
+            // It should never dismount
+            return;
+        }
+
+        final Entity entity = (Entity) hologramEntity;
+
+        try
+        {
+            if ( super.getVehicle() != null )
+            {
+                Entity oldVehicle = super.getVehicle();
+                vehicleField.set( this, null );
+                oldVehicle.passengers.remove( this );
+            }
+
+            vehicleField.set( this, entity );
+            entity.passengers.clear();
+            entity.passengers.add( this );
+
+        }
+        catch ( Throwable t )
+        {
+            t.printStackTrace();
+        }
     }
 }
